@@ -1,5 +1,6 @@
 var socket = io();
 var roomID = getRoomIDS();
+let UsersCounter = 0;
 function getRoomIDS() {
     const urlParams = new URLSearchParams(window.location.search);
     const ids = urlParams.get("ids");
@@ -17,6 +18,18 @@ socket.on("chat message", function (data) {
     console.log(data.from + ": " + data.message);
     if (data.message === "start") {
         startGame();
+    }
+    if (data.message === "countstart") {
+        startUsers();
+        sendMessage("count");
+    }
+    if (data.message === "count") {
+        UsersCounter++;
+        console.log(`Current UsersCounter: ${UsersCounter}`);
+    }
+    if (data.message === "lose") {
+        UsersCounter--;
+        console.log(`Current UsersCounter: ${UsersCounter}`);
     }
 });
 
@@ -82,4 +95,24 @@ function sendwhere() {
     socket.emit("where", { message: message, room: roomID }); // メッセージを送信
 }
 
+//勝利条件
+var Allfinish = false;
+
+function checkwin() {
+    if (UsersCounter < 2) {
+        if (gameOver === false) {
+            if (Allfinish === false) {
+                alert("You Win!");
+                location.reload();
+                Allfinish = true;
+            }
+        }
+    }
+}
+
+//ここまで
 setInterval(sendwhere, 100); //送信
+
+function AllstartUsers() {
+    sendMessage("countstart");
+}
