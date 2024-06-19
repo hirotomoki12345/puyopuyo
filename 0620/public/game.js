@@ -5,7 +5,7 @@ const COLS = 6;
 const ROWS = 13;
 const BLOCK_SIZE = 32;
 const COLORS = ["red", "blue", "yellow", "green", "purple"];
-const DROP_INTERVAL = 1000;
+const DROP_INTERVAL = 600;
 const MOVE_INTERVAL = 50;
 const MATCH_ANIMATION_DURATION = 1000;
 
@@ -20,41 +20,44 @@ let lastMoveTime = 0;
 let isAnimating = false;
 
 document.addEventListener("keydown", handleKeyPress);
+document.addEventListener("keyup", stopMove);
+let moveIntervalId = null;
 
 function handleKeyPress(event) {
     if (isAnimating) return;
 
     switch (event.key) {
         case "ArrowLeft":
-            if (Date.now() - lastMoveTime > MOVE_INTERVAL) {
-                movePiece(-1, 0);
-                lastMoveTime = Date.now();
-            }
+            startMove(-1, 0);
             break;
         case "ArrowRight":
-            if (Date.now() - lastMoveTime > MOVE_INTERVAL) {
-                movePiece(1, 0);
-                lastMoveTime = Date.now();
-            }
+            startMove(1, 0);
             break;
         case "ArrowDown":
-            if (Date.now() - lastMoveTime > MOVE_INTERVAL) {
-                movePiece(0, 1);
-                lastMoveTime = Date.now();
-            }
+            startMove(0, 1);
             break;
         case "z":
-            if (Date.now() - lastMoveTime > MOVE_INTERVAL) {
-                rotatePiece(1);
-                lastMoveTime = Date.now();
-            }
+            rotatePiece(1);
             break;
         case "x":
+            rotatePiece(-1);
+            break;
+    }
+}
+function startMove(dx, dy) {
+    if (!moveIntervalId) {
+        moveIntervalId = setInterval(() => {
             if (Date.now() - lastMoveTime > MOVE_INTERVAL) {
-                rotatePiece(-1);
+                movePiece(dx, dy);
                 lastMoveTime = Date.now();
             }
-            break;
+        }, MOVE_INTERVAL);
+    }
+}
+function stopMove() {
+    if (moveIntervalId) {
+        clearInterval(moveIntervalId);
+        moveIntervalId = null;
     }
 }
 
@@ -330,6 +333,9 @@ function generateNextPiece() {
     if (!isValidMove(currentPiece.blocks)) {
         gameOver = true;
         console.log("Game Over");
+        sendMessage("lose");
+        alert("game over");
+        location.reload();
     }
 }
 
