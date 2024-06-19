@@ -13,6 +13,7 @@ let board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
 let currentPiece = null;
 let nextPiece = null;
 let score = 0;
+let chainCount = 0; // 連鎖数を追跡するための変数
 let gameOver = false;
 let lastDropTime = 0;
 let lastMoveTime = 0;
@@ -57,8 +58,18 @@ function handleKeyPress(event) {
     }
 }
 
+let gameRunning = false;
+
 function startGame() {
+    if (gameRunning) {
+        return;
+    }
+
+    gameRunning = true;
+    setInterval(checkwin, 1000);
+
     score = 0;
+    chainCount = 0; // 連鎖数をリセット
     gameOver = false;
     board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
     currentPiece = createPiece();
@@ -107,6 +118,12 @@ function drawBoard() {
             }
         }
     }
+
+    // 連鎖数をキャンバスに表示する
+    ctx.fillStyle = "black";
+    ctx.font = "16px Arial";
+    ctx.fillText(`Chain Count: ${chainCount}`, 10, 20);
+    ctx.fillText(`Score: ${score}`, 10, 40);
 }
 
 function drawPiece() {
@@ -226,6 +243,7 @@ function checkForMatches() {
     if (matches.length > 0) {
         clearMatches(matches);
     } else {
+        chainCount = 0; // 連鎖数をリセット
         generateNextPiece();
     }
 }
@@ -243,6 +261,19 @@ function clearMatches(matches) {
         board[y][x] = null;
     });
     dropBlocks();
+
+    let numClearedBlocks = clearedBlocks.size;
+    let additionalScore = numClearedBlocks > 0 ? numClearedBlocks - 1 : 0;
+    if (numClearedBlocks > 0) {
+        score += additionalScore;
+        chainCount++; // 連鎖数を増加
+    } else {
+        chainCount = 0; // 連鎖が途切れたらリセット
+    }
+
+    // スコアと連鎖数を表示する処理を追加
+    console.log(`Score: ${score}`);
+    console.log(`Chain Count: ${chainCount}`);
 
     setTimeout(() => {
         isAnimating = false;
@@ -270,12 +301,23 @@ function generateNextPiece() {
     currentPiece = nextPiece;
     nextPiece = createPiece();
     if (!isValidMove(currentPiece.blocks)) {
-        endGame();
+        gameOver = true;
+        console.log("Game Over");
     }
 }
 
-function endGame() {
-    alert(`Game Over! Your score: ${score}`);
-    gameOver = true;
+function checkwin() {
+    for (let i = 0; i < board.length; i++) {
+        let count = 0;
+        for (let j = 0; j < board[i].length; j++) {
+            if (board[i][j] !== null) {
+                count++;
+            }
+        }
+        if (count == 6) {
+            console.log("win");
+            alert("win");
+            location.reload();
+        }
+    }
 }
-//startGame();
