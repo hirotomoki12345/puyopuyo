@@ -279,6 +279,7 @@ function clearMatches(matches) {
     matches.forEach((match) => {
         match.forEach(({ x, y }) => {
             clearedBlocks.add(`${x},${y}`);
+            clearAdjacentGrayPuyos(x, y);
         });
     });
     clearedBlocks.forEach((key) => {
@@ -353,4 +354,60 @@ function checkwin() {
             location.reload();
         }
     }
+}
+
+//おじゃま降らす
+function placeGrayPuyo(x, y) {
+    if (x >= 0 && x < COLS && y >= 0 && y < ROWS) {
+        board[y][x] = "gray";
+    }
+}
+// placeGrayPuyo(x, y)
+//お邪魔落下
+function dropGrayPuyos() {
+    for (let x = 0; x < COLS; x++) {
+        for (let y = ROWS - 1; y >= 0; y--) {
+            if (board[y][x] === null) {
+                for (let k = y - 1; k >= 0; k--) {
+                    if (board[k][x] === "gray") {
+                        board[y][x] = "gray";
+                        board[k][x] = null;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+setInterval(dropGrayPuyos, 300);
+//おじゃま消す。
+function clearGrayPuyo(x, y) {
+    if (x >= 0 && x < COLS && y >= 0 && y < ROWS && board[y][x] === "gray") {
+        board[y][x] = null;
+    }
+}
+//clearGrayPuyo(x ,y)
+
+//消える？
+function clearAdjacentGrayPuyos(x, y) {
+    const directions = [
+        [0, 1],
+        [1, 0],
+        [0, -1],
+        [-1, 0],
+    ];
+    directions.forEach(([dx, dy]) => {
+        const nx = x + dx;
+        const ny = y + dy;
+        if (
+            nx >= 0 &&
+            nx < COLS &&
+            ny >= 0 &&
+            ny < ROWS &&
+            board[ny][nx] === "gray"
+        ) {
+            board[ny][nx] = null;
+            clearAdjacentGrayPuyos(nx, ny); // 再帰的に周囲をチェック
+        }
+    });
 }
