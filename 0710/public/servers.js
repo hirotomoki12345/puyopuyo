@@ -43,8 +43,10 @@ socket.on("chat message", function (data) {
                 num = num * num;
                 // Math.random()で0から5までの整数を生成してplaceGrayPuyoを実行
                 for (let i = 0; i < num; i++) {
-                    let randomNumber = Math.floor(Math.random() * 6); // 0から5までの整数を生成
-                    placeGrayPuyo(randomNumber, 0);
+                    setTimeout(() => {
+                        let randomNumber = Math.floor(Math.random() * 6); // 0から5までの整数を生成
+                        placeGrayPuyo(randomNumber, 0);
+                    }, i * 150);
                 }
             }
         }
