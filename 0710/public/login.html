@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>ID入力フォーム</title>
+    </head>
+    <body>
+        <form id="idForm" action="" method="GET" onsubmit="redirectToId(event)">
+            <label for="idInput">IDを入力してください:</label>
+            <input type="text" id="idInput" name="id" required />
+            <button type="submit">送信</button>
+        </form>
+
+        <script>
+            function redirectToId(event) {
+                event.preventDefault();
+                const idInput = document.getElementById("idInput").value;
+                if (idInput) {
+                    const newUrl = `index.html?ids=${encodeURIComponent(idInput)}`;
+                    window.location.href = newUrl;
+                }
+            }
+        </script>
+    </body>
+</html>
